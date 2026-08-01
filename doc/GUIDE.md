@@ -35,6 +35,17 @@ After executing `docker compose up -d`, AppFlowy-Cloud is accessible at `http://
 - `/minio`: User interface for Minio object storage.
 - `/`, `/app`: AppFlowy Web.
 
+### Self-Hosted User Onboarding & Whitelist
+In the Community Self-Hosted edition, workspace member invitations are capped at one member or owner per workspace. User onboarding is managed via the **Signup Settings / Whitelist** in the Admin Console (`/console/users-management?tab=settings`):
+- **Domain Whitelist**: Add authorized email domains (e.g. `yourcompany.com`). Users registering with matching emails can self-signup at `/signup`. These self-signups bypass the 1-seat workspace member cap entirely, allowing unlimited workspace owners.
+- **Email Whitelist**: Add specific external email addresses for individual collaborator access.
+
+### Reverse Proxy & Reverse Proxy Authentication
+When deploying `admin_frontend` behind reverse proxies (Traefik, Nginx, Cloudflare Tunnels), set `NEXT_PUBLIC_DISABLE_SERVER_ACTIONS=true` in your `.env` file to handle authentication tokens client-side in the browser (`localStorage` and `document.cookie`), preventing cookie session desynchronization loops on Next.js Server Actions. Note that this flag should **not** be used in environments where client-side token handling is undesirable for security reasons, as it moves token handling away from strictly server-side HTTP-only cookies.
+
+> [!NOTE]
+> **Security Recommendation**: When enabling client-side authentication behind a reverse proxy, ensure TLS/HTTPS is active (`SCHEME=https`) and configure `Secure` and `SameSite=Lax` flags on your proxy headers to protect session tokens and mitigate Cross-Site Request Forgery (CSRF) on cross-site requests. Ensure your proxy accurately forwards necessary headers (such as `X-Forwarded-Host` and `X-Forwarded-Proto`).
+
 ![Deployment Architecture](../assets/images/deployment_arch.png)
 
 ## Dockerization and Continuous Integration
